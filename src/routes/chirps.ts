@@ -86,6 +86,34 @@ export async function chirpRoutes(
     },
   );
 
+  const PostChirpLikeBody = {
+    type: 'object',
+    properties: {
+      chirpId: { type: 'number' },
+    },
+  };
+
+  fastify.put<{ Querystring: { chirpId: number } }>(
+    `/${ROUTE_BASE}/like`,
+    {
+      schema: { body: PostChirpLikeBody },
+    },
+    async (request, reply) => {
+      const { chirpId } = request.body as { chirpId: number };
+
+      invariant(chirpId, 'chirpID not found');
+
+      invariant(
+        typeof chirpId === 'number',
+        'chirpID must be a valid number id',
+      );
+
+      const payload = await chirpRepository.updateChirpLikes(chirpId);
+
+      reply.code(200).send({ payload });
+    },
+  );
+
   const PostChirpBody = {
     type: 'object',
     required: ['authorId', 'published', 'isRechirp'],
