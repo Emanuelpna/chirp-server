@@ -42,7 +42,6 @@
     "prisma": "^4.0.0",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.0.1",
-    "tsconfig-paths": "^4.0.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.5.0",
     "typescript": "^4.7.4"
@@ -53,7 +52,8 @@
     "dotenv": "^16.0.1",
     "fastify": "^4.2.1",
     "tiny-invariant": "^1.2.0",
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "tsconfig-paths": "^4.0.0"
   },
   "config": {
     "commitizen": {
