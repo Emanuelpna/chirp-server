@@ -5,11 +5,12 @@
   "description": "",
   "keywords": [],
   "license": "ISC",
-  "main": "src/main.ts",
+  "main": "./dist/main.js",
   "scripts": {
     "dev": "nodemon",
     "build": "etsc",
     "start": "cross-env NODE_ENV=production node -r tsconfig-paths/register dist/main.js",
+    "postinstall":"npm run build",
     "prisma": "prisma",
     "test": "jest",
     "test:watch": "npm run test -- --watch",
