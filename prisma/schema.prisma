@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Chirp {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  content     String?
+  published   Boolean   @default(false)
+  scheduledTo DateTime?
+  isRechirp   Boolean   @default(false)
+  likes       Int       @default(0)
+  authorId    Int
+  parentToId  Int?      
+  related     Chirp[]   @relation("ChirpTree")
+  author      User      @relation(fields: [authorId], references: [id])
+  parentTo    Chirp?    @relation("ChirpTree", fields: [parentToId], references: [id])
+}
+
+model Profile {
+  id          Int     @id @default(autoincrement())
+  bio         String?
+  userId      Int     @unique
+  user        User    @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String
+  avatar      String?
+  username    String
+  posts       Chirp[]
+  profile     Profile?
+}
