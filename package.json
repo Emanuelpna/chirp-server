@@ -1,0 +1,62 @@
+{
+  "name": "chirp-server",
+  "version": "1.0.0",
+  "author": "",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "main": "src/main.ts",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "etsc",
+    "start": "cross-env NODE_ENV=production node -r tsconfig-paths/register dist/main.js",
+    "prisma": "prisma",
+    "test": "jest",
+    "test:watch": "npm run test -- --watch",
+    "lint": "eslint --ext .js,.jsx --ignore-path .gitignore --fix src",
+    "lint:staged": "lint-staged",
+    "prepare": "husky install",
+    "commitizen": "commitizen",
+    "commit": "cz"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.18.2",
+    "@babel/preset-env": "^7.18.6",
+    "@babel/preset-react": "^7.18.6",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^18.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "babel-eslint": "^10.1.0",
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.14.49",
+    "esbuild-node-tsc": "^1.8.6",
+    "eslint": "^8.19.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "nodemon": "^2.0.19",
+    "prettier": "^2.7.1",
+    "prisma": "^4.0.0",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.0.1",
+    "tsconfig-paths": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.5.0",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.0.0",
+    "@prisma/client": "^4.0.0",
+    "dotenv": "^16.0.1",
+    "fastify": "^4.2.1",
+    "tiny-invariant": "^1.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

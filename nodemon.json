@@ -1,0 +1,7 @@
+{
+  "watch": ["src"],
+  "ignore": ["src/**/*.test.ts", "node_modules"],
+  "ext": "ts,mjs,js,json,graphql",
+  "exec": "etsc && cross-env NODE_ENV=development node -r tsconfig-paths/register ./dist/main.js",
+  "legacyWatch": true
+}
