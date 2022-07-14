@@ -23,7 +23,10 @@ fastify.get('/', async () => {
  */
 const start = async () => {
   try {
-    await fastify.listen({ port: 4000 });
+    await fastify.listen({
+      port: 4000,
+      host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1',
+    });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
