@@ -1,10 +1,10 @@
 import {
   ChirpDTO,
-  ChirpThreadID,
+  ChirpTree,
   ChirpWithAuhtor,
-} from '../domain/chirp/chirp.dto';
+} from '../../domain/chirp/chirp.dto';
 
-import { prisma } from '../database';
+import { prisma } from '../../database';
 
 export class ChirpRepository {
   async getChirps() {
@@ -31,20 +31,36 @@ export class ChirpRepository {
     });
   }
 
+  async getChirpRelated(chirpId: number, authorId: number) {
+    return await prisma.chirp.findMany({
+      where: {
+        parentToId: chirpId,
+        authorId: {
+          not: authorId,
+        },
+      },
+      include: { author: true },
+    });
+  }
+
   async getChirpThread(authorId: number, chirpId: number) {
-    return await prisma.$queryRaw<ChirpThreadID[]>`
+    return await prisma.$queryRaw<ChirpTree[]>`
       WITH RECURSIVE ChirpThread AS (
-          SELECT c.*, array[c."id", c."parentToId"] as thread
+          SELECT c.*, u."name", u."avatar", u."email", u."username", array[c."id", c."parentToId"] as thread
             FROM "Chirp" c, "User" u
-            WHERE c."authorId" = ${authorId}
+            WHERE c."authorId" = ${authorId} AND u."id" = ${authorId}
           UNION
-            SELECT c.*, t."thread"||c.id FROM ChirpThread as t
+            SELECT c.*, u."name", u."avatar", u."email", u."username", t."thread"||c.id FROM ChirpThread as t
               INNER JOIN "Chirp" c ON c."id" = t."parentToId"
+              INNER JOIN "User" u ON u."id" = t."authorId"
       )
-      SELECT ct."thread" FROM ChirpThread ct
-        WHERE ct."authorId" = ${authorId} AND array_position(ct."thread", ${chirpId}) > 0
-        ORDER BY greatest(array_length(ct."thread", 1)) desc
-        LIMIT 1;
+      SELECT DISTINCT ON (id) * FROM ChirpThread ct
+        WHERE ct."authorId" = ${authorId} AND array_position(
+          (
+            SELECT ict."thread" FROM ChirpThread ict WHERE array_position(ict."thread", ${chirpId}) > 0 ORDER BY greatest(array_length(ict."thread", 1)) desc LIMIT 1
+          ), ct."id"
+        ) > 0
+        ORDER BY id asc, greatest(array_length(ct."thread", 1)) desc;
     `;
   }
 

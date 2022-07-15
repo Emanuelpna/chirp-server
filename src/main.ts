@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import * as dotenv from 'dotenv';
 import fastifyCors from '@fastify/cors';
 
-import { chirpRoutes } from './routes/chirps';
+import { chirpRoutes } from './routes/chirps.route';
 
 dotenv.config();
 
