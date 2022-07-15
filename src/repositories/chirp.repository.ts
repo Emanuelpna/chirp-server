@@ -1,6 +1,6 @@
 import {
   ChirpDTO,
-  ChirpThread,
+  ChirpThreadID,
   ChirpWithAuhtor,
 } from '../domain/chirp/chirp.dto';
 
@@ -32,16 +32,20 @@ export class ChirpRepository {
   }
 
   async getChirpThread(authorId: number, chirpId: number) {
-    const values = await prisma.$queryRaw<ChirpThread[]>`
-      WITH RECURSIVE chirp_thread AS (
-          SELECT *, array["id","parentToId"] as thread FROM "public"."Chirp" WHERE "authorId" = ${authorId}
+    return await prisma.$queryRaw<ChirpThreadID[]>`
+      WITH RECURSIVE ChirpThread AS (
+          SELECT c.*, array[c."id", c."parentToId"] as thread
+            FROM "Chirp" c, "User" u
+            WHERE c."authorId" = ${authorId}
           UNION
-            SELECT c.*, t.thread||c.id FROM chirp_thread t INNER JOIN "public"."Chirp" c ON c."id" = t."parentToId"
+            SELECT c.*, t."thread"||c.id FROM ChirpThread as t
+              INNER JOIN "Chirp" c ON c."id" = t."parentToId"
       )
-      SELECT * FROM chirp_thread ct WHERE ct."authorId" = ${authorId} ORDER BY greatest(array_length(thread, 1)) desc;
+      SELECT ct."thread" FROM ChirpThread ct
+        WHERE ct."authorId" = ${authorId} AND array_position(ct."thread", ${chirpId}) > 0
+        ORDER BY greatest(array_length(ct."thread", 1)) desc
+        LIMIT 1;
     `;
-
-    return values.filter((chirp) => chirp.thread.includes(chirpId));
   }
 
   async getBulkChirpsByIds(chirpIds: number[]): Promise<ChirpWithAuhtor[]> {

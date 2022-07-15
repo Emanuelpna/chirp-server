@@ -38,41 +38,40 @@ export async function chirpRoutes(
 
         invariant(chirpDetails, 'Chirp not found');
 
-        const threadChirp = await chirpRepository.getChirpThread(
+        const threadChirps = await chirpRepository.getChirpThread(
           chirpDetails.author.id,
           chirpId,
         );
 
-        const longestThreadReceived = threadChirp?.[0];
+        const chirpThread = threadChirps?.[0].thread;
 
-        const threadIds = DistinctArray<number>(
-          longestThreadReceived?.thread ?? [],
-        );
-
-        const hasThreadIds = threadIds && threadIds.length > 0;
-
-        const threadChirps: ChirpWithAuhtor[] = hasThreadIds
-          ? await chirpRepository.getBulkChirpsByIds(threadIds)
+        const threadChirpsWithAuhor = chirpThread
+          ? await chirpRepository.getBulkChirpsByIds(
+              chirpThread.filter((chirp) => chirp !== null) as number[],
+            )
           : [];
 
-        const threadChirpsOfSameAuthor = DistinctArray(
-          threadChirps,
-          (item) => item.author.id === chirpDetails.author.id,
-        );
+        const hasThread =
+          threadChirpsWithAuhor && threadChirpsWithAuhor.length > 0;
+
+        const threadIds = threadChirpsWithAuhor.map((chirp) => chirp.id);
 
         const parentChirp =
-          threadChirpsOfSameAuthor.length === 1 && threadChirp[0].parentToId
-            ? await chirpRepository.getChirpDetails(threadChirp[0].parentToId)
+          threadChirpsWithAuhor.length === 1 &&
+          threadChirpsWithAuhor[0].parentToId
+            ? await chirpRepository.getChirpDetails(
+                threadChirpsWithAuhor[0].parentToId,
+              )
             : null;
 
         reply.code(200).send({
           parent: parentChirp,
-          replys: !hasThreadIds
+          replys: !hasThread
             ? chirpDetails.related
             : chirpDetails.related.filter(
                 (chirp) => !threadIds.includes(chirp.id),
               ),
-          thread: hasThreadIds ? threadChirpsOfSameAuthor : [chirpDetails],
+          thread: hasThread ? threadChirpsWithAuhor : [chirpDetails],
         });
       } catch (err) {
         const error = err as Error;

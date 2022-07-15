@@ -6,7 +6,12 @@ export type ChirpDTO = Prisma.Without<
 > &
   Prisma.ChirpUncheckedCreateInput;
 
-export type ChirpThread = Chirp & {
+export type ChirpThread = Chirp &
+  User & {
+    thread: Array<number | null>;
+  };
+
+export type ChirpThreadID = {
   thread: Array<number | null>;
 };
 
