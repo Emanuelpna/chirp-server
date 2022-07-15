@@ -54,6 +54,9 @@ export class ChirpRepository {
       include: {
         author: true,
       },
+      orderBy: {
+        createdAt: 'asc',
+      },
     });
   }
 
