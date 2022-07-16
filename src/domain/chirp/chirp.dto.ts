@@ -1,10 +1,16 @@
 import { Chirp, User, Prisma } from '@prisma/client';
 
-export type ChirpDTO = Prisma.Without<
+export type ChirpDTOCreate = Prisma.Without<
   Prisma.ChirpCreateInput,
   Prisma.ChirpUncheckedCreateInput
 > &
   Prisma.ChirpUncheckedCreateInput;
+
+export type ChirpDTOUpdate = Prisma.Without<
+  Prisma.ChirpUpdateInput,
+  Prisma.ChirpUncheckedUpdateInput
+> &
+  Prisma.ChirpUncheckedUpdateInput;
 
 export type ChirpTree = Chirp &
   User & {

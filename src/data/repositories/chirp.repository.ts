@@ -1,6 +1,6 @@
 import {
-  ChirpDTO,
   ChirpTree,
+  ChirpDTOCreate,
   ChirpWithAuhtor,
 } from '../../domain/chirp/chirp.dto';
 
@@ -9,10 +9,23 @@ import { prisma } from '../../database';
 export class ChirpRepository {
   async getChirps() {
     return await prisma.chirp.findMany({
-      where: { parentToId: null },
+      where: {
+        OR: [
+          {
+            parentToId: null,
+            isRechirp: false,
+          },
+          {
+            isRechirp: true,
+            parentToId: {
+              not: null,
+            },
+          },
+        ],
+      },
       include: { related: true, author: true },
       orderBy: {
-        createdAt: 'asc',
+        createdAt: 'desc',
       },
     });
   }
@@ -55,7 +68,7 @@ export class ChirpRepository {
               INNER JOIN "User" u ON u."id" = t."authorId"
       )
       SELECT DISTINCT ON (id) * FROM ChirpThread ct
-        WHERE ct."authorId" = ${authorId} AND array_position(
+        WHERE ct."authorId" = ${authorId} AND isRechirp = false AND array_position(
           (
             SELECT ict."thread" FROM ChirpThread ict WHERE array_position(ict."thread", ${chirpId}) > 0 ORDER BY greatest(array_length(ict."thread", 1)) desc LIMIT 1
           ), ct."id"
@@ -80,20 +93,20 @@ export class ChirpRepository {
     });
   }
 
-  async updateChirpLikes(chirpId: number) {
+  async updateChirpLikes(id: number) {
     const chirps = await prisma.chirp.update({
       data: {
         likes: { increment: 1 },
       },
       where: {
-        id: chirpId,
+        id,
       },
     });
 
     return chirps;
   }
 
-  async createNewChirp(payload: ChirpDTO) {
+  async createNewChirp(payload: ChirpDTOCreate) {
     const chirps = await prisma.chirp.create({
       data: payload,
     });

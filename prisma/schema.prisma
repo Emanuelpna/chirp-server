@@ -17,10 +17,18 @@ model Chirp {
   isRechirp   Boolean   @default(false)
   likes       Int       @default(0)
   authorId    Int
-  parentToId  Int?      
+  parentToId  Int?
   related     Chirp[]   @relation("ChirpTree")
+  reChirps    ReChirp[]
   author      User      @relation(fields: [authorId], references: [id])
   parentTo    Chirp?    @relation("ChirpTree", fields: [parentToId], references: [id])
+}
+
+model ReChirp {
+  id          Int       @id @default(autoincrement())
+  authorId    Int
+  parents     Chirp[]
+  author      User      @relation(fields: [authorId], references: [id])
 }
 
 model Profile {
@@ -37,5 +45,6 @@ model User {
   avatar      String?
   username    String
   posts       Chirp[]
+  rechirps    ReChirp[]
   profile     Profile?
 }

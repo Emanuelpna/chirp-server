@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant';
 import { FastifyInstance, RouteOptions } from 'fastify';
 
-import { ChirpDTO } from '../domain/chirp/chirp.dto';
+import { ChirpDTOCreate } from '../domain/chirp/chirp.dto';
 
 import { ChirpController } from '../data/controllers/chirp.controller';
 import { ChirpRepository } from '../data/repositories/chirp.repository';
@@ -18,7 +18,29 @@ export async function chirpRoutes(
     try {
       const chirps = await chirpRepository.getChirps();
 
-      reply.code(200).send({ items: chirps });
+      const rechirpIds = chirps
+        .filter((chirp) => chirp.isRechirp)
+        .map((chirp) => chirp.id);
+
+      const rechirps = await chirpRepository.getBulkChirpsByIds(rechirpIds);
+
+      const items =
+        rechirps.length > 0
+          ? chirps.map((chirp) => {
+              const rechirp = chirps.find(
+                (rechirp) => rechirp.id === chirp.parentToId,
+              );
+
+              if (!rechirp) return chirp;
+
+              return {
+                ...rechirp,
+                reChirped: chirp,
+              };
+            })
+          : chirps;
+
+      reply.code(200).send({ items });
     } catch (err) {
       const error = err as Error;
 
@@ -102,6 +124,42 @@ export async function chirpRoutes(
     },
   );
 
+  const PostReChirpBody = {
+    type: 'object',
+    required: ['authorId', 'published', 'isRechirp', 'parentToId'],
+    properties: {
+      likes: { type: 'integer' },
+      content: { type: 'string' },
+      authorId: { type: 'integer' },
+      published: { type: 'boolean' },
+      isRechirp: { type: 'boolean' },
+      parentToId: { type: 'integer' },
+    },
+  };
+
+  fastify.post(
+    `/${ROUTE_BASE}/rechirp`,
+    { schema: { body: PostReChirpBody } },
+    async (request, reply) => {
+      try {
+        const payload = request.body as ChirpDTOCreate;
+
+        invariant(payload, 'payload not found');
+
+        chirpRepository.createNewChirp(payload);
+
+        reply.code(201).send({ payload });
+      } catch (err) {
+        const error = err as Error;
+
+        reply.code(422).send({
+          name: error.name,
+          error: error.message,
+        });
+      }
+    },
+  );
+
   const PostChirpBody = {
     type: 'object',
     required: ['authorId', 'published', 'isRechirp'],
@@ -121,7 +179,7 @@ export async function chirpRoutes(
     { schema: { body: PostChirpBody } },
     async (request, reply) => {
       try {
-        const payload = request.body as ChirpDTO;
+        const payload = request.body as ChirpDTOCreate;
 
         invariant(payload, 'payload not found');
 
