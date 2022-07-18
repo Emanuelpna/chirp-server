@@ -10,7 +10,12 @@ const fastify = Fastify({
   logger: true,
 });
 
-fastify.register(fastifyCors);
+fastify.register(fastifyCors, {
+  origin:
+    process.env.NODE_ENV === 'production'
+      ? 'https://chirp-client-dusky.vercel.app/'
+      : '*',
+});
 
 fastify.register(chirpRoutes);
 

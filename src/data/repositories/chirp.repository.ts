@@ -68,7 +68,7 @@ export class ChirpRepository {
               INNER JOIN "User" u ON u."id" = t."authorId"
       )
       SELECT DISTINCT ON (id) * FROM ChirpThread ct
-        WHERE ct."authorId" = ${authorId} AND isRechirp = false AND array_position(
+        WHERE ct."authorId" = ${authorId} AND ct."isRechirp" = false AND array_position(
           (
             SELECT ict."thread" FROM ChirpThread ict WHERE array_position(ict."thread", ${chirpId}) > 0 ORDER BY greatest(array_length(ict."thread", 1)) desc LIMIT 1
           ), ct."id"
