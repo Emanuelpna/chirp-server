@@ -11,10 +11,8 @@ const fastify = Fastify({
 });
 
 fastify.register(fastifyCors, {
-  origin:
-    process.env.NODE_ENV === 'production'
-      ? 'https://chirp-client-dusky.vercel.app/'
-      : '*',
+  origin: process.env.CLIENT_URL ?? '*',
+  methods: ['GET', 'PUT', 'POST'],
 });
 
 fastify.register(chirpRoutes);
@@ -30,7 +28,7 @@ const start = async () => {
   try {
     await fastify.listen({
       port: process.env.PORT || 4000,
-      host: process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1',
+      host: process.env.HOST ?? '127.0.0.1',
     });
   } catch (err) {
     fastify.log.error(err);

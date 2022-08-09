@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant';
-import { FastifyInstance, RouteOptions } from 'fastify';
+import { FastifyInstance } from 'fastify';
 
 import { ChirpDTOCreate } from '../domain/chirp/chirp.dto';
 
@@ -8,10 +8,7 @@ import { ChirpRepository } from '../data/repositories/chirp.repository';
 
 const ROUTE_BASE = 'chirps';
 
-export async function chirpRoutes(
-  fastify: FastifyInstance,
-  options: RouteOptions,
-) {
+export async function chirpRoutes(fastify: FastifyInstance) {
   const chirpRepository = new ChirpRepository();
 
   fastify.get(`/${ROUTE_BASE}`, async (request, reply) => {
